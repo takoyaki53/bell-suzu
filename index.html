@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ベル鈴の鐘 | また聞きたくなる鈴の音のようなゲーム</title>
+  <meta name="description" content="また聞きたくなる鈴の音のような、心に残るゲームをあなたに。ベル鈴の鐘のゲーム紹介サイト。">
+  <meta property="og:title" content="ベル鈴の鐘">
+  <meta property="og:description" content="また聞きたくなる鈴の音のような、心に残るゲームをあなたに。">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#0f1b33">
+  <link rel="icon" href="img/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip" href="#games">本文へスキップ</a>
+
+  <header class="header" id="top">
+    <div class="container header__inner">
+      <a class="brand" href="#top" aria-label="ベル鈴の鐘 トップへ">
+        <img class="brand__logo" src="img/logo.svg" alt="" width="36" height="36">
+        <span class="brand__name">ベル鈴の鐘</span>
+      </a>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="nav" aria-label="メニューを開く">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="nav" id="nav" aria-label="メインメニュー">
+        <a href="#games">ゲーム</a>
+        <a href="#about">ベル鈴の鐘とは</a>
+        <!-- <a href="#contact">お問い合わせ</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="stars" aria-hidden="true"></div>
+      <div class="container hero__inner">
+        <img class="hero__bell" src="img/logo.svg" alt="" width="96" height="96">
+        <h1 class="hero__title" id="hero-title">ベル鈴の鐘</h1>
+        <p class="hero__lead">また聞きたくなる鈴の音のような、<br>心に残るゲームをあなたに</p>
+        <a class="btn btn--primary" href="#games">ゲームを見る</a>
+      </div>
+    </section>
+
+    <section class="section" id="games" aria-labelledby="games-title">
+      <div class="container">
+        <h2 class="section__title" id="games-title">ゲーム</h2>
+        <p class="section__lead">ブラウザですぐ遊べるもの、ダウンロードして遊ぶものどちらも作っていく予定です。</p>
+        <div class="filters" id="filters" role="group" aria-label="ジャンルで絞り込み"></div>
+        <div class="grid" id="grid"></div>
+      </div>
+    </section>
+
+    <section class="section section--alt" id="about" aria-labelledby="about-title">
+      <div class="container about">
+        <h2 class="section__title" id="about-title">ベル鈴の鐘とは</h2>
+        <p>鈴の音は、ふとした時にまた聞きたくなる不思議な音です。<br>
+        遊び終わったあとも、ふとした時に思い出して、もう一度遊びたくなる。<br>
+        そんな心に残るゲームを、ひとつずつ丁寧につくっています。</p>
+      </div>
+    </section>
+
+    <!-- <section class="section" id="contact" aria-labelledby="contact-title">
+      <div class="container contact">
+        <h2 class="section__title" id="contact-title">お問い合わせ</h2>
+        <p>ご感想・ご連絡はこちらからお気軽にどうぞ。</p>
+        <div class="contact__links">
+          <a class="btn" href="mailto:example@example.com">メールを送る</a>
+          <a class="btn" href="#" rel="noopener">SNS(準備中)</a>
+        </div>
+      </div>
+    </section> -->
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>© <span id="year"></span> ベル鈴の鐘</p>
+    </div>
+  </footer>
+
+  <div class="modal" id="modal" hidden>
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button class="modal__close" data-close aria-label="閉じる">×</button>
+      <div class="modal__body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="js/games.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
