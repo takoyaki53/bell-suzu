@@ -32,7 +32,7 @@ window.GAMES = [
     screenshots: [],
     controls: "移動:カーソル / 決定：クリック",
     tags: ["ブラウザで遊べる", "ひとり用"],
-    play: [{ type: "embed", url: "" }]
+    play: [{ type: "embed", url: "games/synergy-city/index.html" }]
   },
 //   {
 //     id: "suzu-no-puzzle",

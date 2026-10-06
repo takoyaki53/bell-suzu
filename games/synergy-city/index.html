@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>シナジー・シティ</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0b1526;color:#fff;font-family:system-ui,"Hiragino Sans","Noto Sans JP",sans-serif}
+#app{max-width:900px;margin:0 auto;padding:16px;min-height:100vh;background:linear-gradient(#16233f,#0b1526)}
+button{cursor:pointer;font:inherit;color:inherit}.row{display:flex;gap:16px;flex-wrap:wrap}.c{text-align:center}.m{color:#94a3b8;font-size:12px}
+.btn{background:#f59e0b;color:#0f172a;font-weight:700;border:0;border-radius:99px;padding:10px 22px;margin-top:10px}
+.card{background:#1e293b;border:2px solid #334155;border-radius:12px;padding:10px;text-align:left;display:flex;gap:10px;align-items:center;width:100%;margin-bottom:8px}.card.on{border-color:#fbbf24;background:#334155}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;background:#020617;padding:10px;border-radius:12px;max-width:380px}
+.cell{aspect-ratio:1;border-radius:8px;border:2px dashed #475569;background:#0f172a;font-size:26px;display:flex;align-items:center;justify-content:center;flex:1}
+.cell.f{border-style:solid;background:#1e293b}.cell.g{border-color:#fbbf24}.cell.w{border-color:#f87171}
+.amb{color:#fbbf24}.red{color:#f87171}.grn{color:#34d399}.box{background:#1e293b;border:1px solid #475569;border-radius:12px;padding:14px}
+.j{display:flex;justify-content:space-between}.bar{height:8px;background:#1e293b;border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:#fbbf24}
+.rc{background:#fafaf9;color:#292524;font-family:monospace;padding:20px;border-radius:8px;max-width:420px;width:100%;font-size:13px}.rc p{margin:4px 0}
+.swot{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:#0f172a;padding:14px;border-radius:8px;max-width:420px;font-size:12px}.swot ul{margin:4px 0;padding-left:16px}
+.mega{animation:sh .6s,gl 1s infinite}.bn{display:inline-block;background:#f59e0b;color:#0f172a;font-weight:800;padding:8px 20px;border-radius:99px;animation:bn .5s infinite alternate}
+@keyframes sh{0%,100%{transform:none}20%{transform:translate(-8px,3px) rotate(-1.5deg)}40%{transform:translate(8px,-3px) rotate(1.5deg)}60%{transform:translate(-5px,3px)}80%{transform:translate(5px,-2px)}}
+@keyframes gl{0%,100%{box-shadow:0 0 12px 2px rgba(251,191,36,.5)}50%{box-shadow:0 0 32px 8px rgba(251,191,36,.9)}}@keyframes bn{to{transform:translateY(-6px)}}
+input{padding:8px;background:#1e293b;border:1px solid #475569;border-radius:6px;color:#fff}
+.st span{padding:3px 9px;border:1px solid #334155;border-radius:99px;color:#64748b;font-size:12px;margin-right:4px}.st .on{background:#f59e0b;color:#0f172a}
+</style></head><body><div id="app"></div>
+<script>
+const KEY='synergy_city_ranking',$=s=>document.querySelector(s),fmt=n=>'¥'+Math.round(n).toLocaleString('ja-JP');
+const B=[['cinema','🎬','映画館',400,'イベント発生率+15%'],['popcorn','🍿','ポップコーン屋',200],['office','🏢','オフィス',500,'隣接建物の収益+10%'],['izakaya','🍺','居酒屋',300],['super','🏪','スーパー',600],['house','🏠','住宅',250,'毎ターン固定+¥80'],['park','🌸','公園',150,'マイナスシナジーを1件相殺'],['ramen','🍜','ラーメン屋',250,'店舗倍率+20%'],['cafe','☕','カフェ',200],['hosp','🏥','病院',350,'投資倍率+0.2']].map(([k,e,n,v,a])=>({k,e,n,v,a}));
+const SYN=['cinema|popcorn','office|izakaya','office|cafe','house|super','house|park','house|hosp','izakaya|ramen'],NEG=['hosp|izakaya','house|izakaya'];
+const PR=[['meat','🥩','肉'],['spice','🧂','スパイス'],['wine','🍷','ワイン'],['beer','🍺','ビール'],['diaper','👶','おむつ'],['milk','🥛','牛乳'],['bread','🍞','パン']],SS=['meat|spice','diaper|beer','meat|wine','milk|bread'];
+const PL=['🥩肉を買った客の80%が🧂スパイスも購入','👶おむつを買った客は🍺ビールも購入','🥩肉と🍷ワインの同時購入が増加傾向','🥛牛乳と🍞パンは朝食セットの定番'];
+const EV=[['📉','景気後退','オフィス収益-40%',{office:.6}],['🎆','花火大会','映画館・公園+100%',{cinema:2,park:2}],['🥵','猛暑','スーパー+50%',{super:1.5}],['👴','高齢化社会','病院+40% / 住宅-20%',{hosp:1.4,house:.8}],['✈️','インバウンド','映画館・カフェ+50%',{cinema:1.5,cafe:1.5}]];
+const POL=[['💼','法人税減税','オフィス+30%（恒久）',{office:1.3}],['👶','子育て支援','住宅+50%（恒久）',{house:1.5}],['🌳','公園整備','公園+40%（恒久）',{park:1.4}],['✈️','観光促進','映画館・カフェ・ラーメン屋+25%（恒久）',{cinema:1.25,cafe:1.25,ramen:1.25}],['🏗️','企業誘致','オフィスが出現しやすくなる（恒久）',null,{office:2}],['🌙','深夜営業許可','居酒屋+30% / 住宅-20%（恒久）',{izakaya:1.3,house:.8}]];
+const has=(l,a,b)=>l.includes(a+'|'+b)||l.includes(b+'|'+a),nm=l=>l.map(c=>c[0].e+c[0].n+'×'+c[1].e+c[1].n).join(' / ');
+const nbr=i=>{const r=i>>2,c=i&3,o=[];if(r>0)o.push(i-4);if(r<3)o.push(i+4);if(c>0)o.push(i-1);if(c<3)o.push(i+1);return o};
+const cnt=k=>G.grid.filter(c=>c&&c.k==k).length;
+const roll=()=>Math.random()<Math.min(.95,.55+.15*cnt('cinema'))?EV[Math.random()*5|0]:null;
+const G0=()=>({grid:Array(16).fill(null),day:1,money:0,phase:'event',cards:[],sel:null,place:null,sh:[null,null,null],sp:null,res:null,inv:[],mat:null,pol:[],offer:[],ch:null,ev:null});
+let G=G0(),mem=null;G.ev=roll();
+const rank=()=>{if(mem)return mem;try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return[]}};
+const draw=()=>{const w=B.map(b=>1+G.pol.reduce((s,p)=>s+((p[4]&&p[4][b.k])||0),0)),T=w.reduce((a,b)=>a+b),o=[];for(let n=0;n<3;n++){let r=Math.random()*T,j=0;while(j<9&&r>=w[j]){r-=w[j];j++}o.push(B[j])}return o};
+function analyze(g){
+ const ev=G.ev?G.ev[3]:{},pm={},parks=[];G.pol.forEach(p=>p[3]&&Object.entries(p[3]).forEach(([k,v])=>pm[k]=(pm[k]||1)*v));
+ g.forEach((c,i)=>c&&c.k=='park'&&parks.push(i));const pos=[],raw=[],can=[];
+ g.forEach((c,i)=>{if(!c)return;[(i&3)<3?i+1:-1,i<12?i+4:-1].forEach(n=>{const d=g[n];if(n<0||!d)return;
+  if(has(SYN,c.k,d.k))pos.push([c,d]);if(has(NEG,c.k,d.k))raw.push([c,d,i,n]);if(c.k=='super'&&d.k=='super')can.push([c,d])})});
+ const used=new Set(),neg=[],ned=[];
+ raw.forEach(([a,b,i,n])=>{const p=parks.find(p=>!used.has(p)&&(nbr(i).includes(p)||nbr(n).includes(p)));if(p!==undefined){used.add(p);ned.push([a,b])}else neg.push([a,b])});
+ const base=g.reduce((s,c,i)=>c?s+c.v*(1+.1*nbr(i).filter(n=>g[n]&&g[n].k=='office').length)*(ev[c.k]||1)*(pm[c.k]||1):s,0);
+ const mul=Math.max(.25,1+pos.length-.5*neg.length),cf=Math.pow(.5,can.length),fix=cnt('house')*80;
+ return{base,pos,neg,ned,can,mul,cf,fix,rev:base*mul*cf+fix}}
+const store=()=>{const cb=[];for(let i=0;i<G.sh.length-1;i++){const a=G.sh[i],b=G.sh[i+1];if(a&&b&&has(SS,a,b))cb.push([a,b])}const rn=cnt('ramen'),cm=1+cb.length,rm=+(1+.2*rn).toFixed(2);return{cb,cm,rn,rm,t:cm*rm}};
+const pn=k=>{const p=PR.find(x=>x[0]==k);return p[1]+p[2]};
+function act(a,x){const g=G;switch(a){
+case'pol':g.offer=POL.filter(p=>!g.pol.includes(p)).sort(()=>Math.random()-.5).slice(0,3);g.ch=null;g.phase='policy';break;
+case'pick':g.pol.push(g.offer[x]);g.ch=g.offer[x];break;
+case'day':g.cards=draw();g.phase='day';break;
+case'card':if(!g.place)g.sel=g.sel==x?null:+x;break;
+case'cell':if(g.place||g.sel==null||g.grid[x])break;{const b=g.cards[g.sel];g.grid[x]=b;g.place={...analyze(g.grid),b};g.sel=null}break;
+case'night':g.phase='night';if(analyze(g.grid).base>=2000)while(g.sh.length<5)g.sh.push(null);break;
+case'prod':g.sp=g.sp==x?null:x;break;
+case'shelf':if(g.sh[x])g.sh[x]=null;else if(g.sp){g.sh[x]=g.sp;g.sp=null}break;
+case'rst':g.sh=g.sh.map(()=>null);g.sp=null;break;
+case'toinv':{const m=g.inv.filter(i=>i.due<=g.day);g.mat=null;if(m.length){g.mat=m.reduce((s,i)=>s+i.amt*i.mul,0);g.money+=g.mat;g.inv=g.inv.filter(i=>i.due>g.day)}g.phase='invest'}break;
+case'buy':{if(g.inv.some(i=>i.day==g.day))break;const m=Math.floor(g.money*x);if(m<=0)break;g.money-=m;g.inv.push({amt:m,day:g.day,due:g.day+3,mul:+(2.5+.2*cnt('hosp')).toFixed(2)})}break;
+case'set':{const hs=cnt('super')>0,s=hs?store():{cb:[],cm:1,rn:0,rm:1,t:1},p=g.place;g.res={...p,s,hs,fin:p.rev*s.t};g.phase='settle'}break;
+case'next':g.money+=g.res.fin;if(g.money>=3e5)g.phase='win';else if(g.day>=12)g.phase='lose';else{g.day++;g.ev=roll();g.place=null;g.res=null;g.phase='event'}break;
+case'save':{const n=$('#nm').value.trim().slice(0,10);if(!n)break;mem=[...rank(),{n,s:g.money,d:g.day}].sort((a,b)=>b.s-a.s).slice(0,5);try{localStorage.setItem(KEY,JSON.stringify(mem))}catch(e){}}break;
+case'restart':G=G0();G.ev=roll();break}
+render()}
+const swot=r=>{const g=G,S=[],W=[],O=[],T=[],left=12-g.day,e=g.grid.filter(c=>!c).length;
+ if(r.pos.length)S.push('街シナジー'+r.pos.length+'件');if(r.s.cb.length)S.push('店舗コンボ'+r.s.cb.length+'件');if(g.pol.length)S.push('政策'+g.pol.length+'件を制定');if(r.ned.length)S.push('公園がマイナスを相殺');
+ if(r.neg.length)W.push('マイナスシナジー'+r.neg.length+'件');if(r.can.length)W.push('スーパーの商圏被り');if(r.hs&&!r.s.cb.length)W.push('店舗の棚が未活用');
+ if(e)O.push('空き'+e+'区画');if(!g.inv.length&&left>=3)O.push('投資で資金を増やせる');if(g.pol.length<6)O.push('未制定の政策あり');
+ if(left<=3)T.push('残り'+left+'日');if(g.money<3e5*g.day/12*.6)T.push('目標への進捗が遅れ気味');if(g.ev&&Object.values(g.ev[3]).some(v=>v<1))T.push(g.ev[1]+'で減収');
+ const f=a=>(a.length?a:['特になし']).map(x=>'<li>'+x+'</li>').join('');
+ return`<div class=swot><div class=grn><b>💪強み</b><ul>${f(S)}</ul></div><div class=red><b>⚠️弱み</b><ul>${f(W)}</ul></div><div style="color:#38bdf8"><b>🌱機会</b><ul>${f(O)}</ul></div><div class=amb><b>🔥脅威</b><ul>${f(T)}</ul></div></div>`};
+const V={
+event(){const e=G.ev,c=cnt('cinema');return`<div class=c><p class=m>本日のニュース</p><div style="font-size:56px">${e?e[0]:'☀️'}</div><h2 class=amb>${e?e[1]:'平穏な一日'}</h2><p>${e?e[2]+'（本日のみ）':'特に何も起きませんでした'}</p>${c?`<p class=m>🎬映画館×${c}でイベント発生率UP</p>`:''}<button class=btn data-a=pol>📜 政策フェーズへ</button></div>`},
+policy(){const g=G;return`<div class=c><p class=m>都市政策（1つ選ぶか、見送り）</p>${g.ch?`<div class=box><b class=amb>${g.ch[0]}${g.ch[1]} を制定！</b><br><span class=m>${g.ch[2]}</span></div>`:g.offer.length?g.offer.map((p,i)=>`<button class=card data-a=pick data-i=${i}><span style="font-size:26px">${p[0]}</span><span><b>${p[1]}</b><br><span class=m>${p[2]}</span></span></button>`).join(''):'<p class=m>全ての政策を制定済みです</p>'}<button class=btn data-a=day>☀️ 街づくりへ</button></div>`},
+day(){const g=G,b=g.sel!=null?g.cards[g.sel]:null,p=g.place;
+ const hint=i=>{let po=0,w=0;nbr(i).forEach(n=>{const d=g.grid[n];if(!d)return;if(has(SYN,d.k,b.k))po=1;if(has(NEG,d.k,b.k)||(b.k=='super'&&d.k=='super'))w=1});return[po,w]};
+ const cells=g.grid.map((c,i)=>{let cl='cell',t=c?c.e:'';if(c)cl+=' f';else if(b&&!p){const[po,w]=hint(i);if(w)cl+=' w';else if(po)cl+=' g';t=(po?'⚡':'')+(w?'⚠':'');t=`<small class="${w?'red':'amb'}">${t}</small>`}
+  return`<button class="${cl}" data-a=cell data-i=${i} ${c||!b||p?'disabled':''}>${t}</button>`}).join('');
+ const right=p?`<div class=box><b>${p.b.e}${p.b.n}を建設！</b>${p.pos.length?`<p class=amb>⚡街コンボ×${p.pos.length}<br>${nm(p.pos)}</p>`:''}${p.neg.length?`<p class=red>⚠マイナス×${p.neg.length}<br>${nm(p.neg)}</p>`:''}${p.ned.length?`<p class=grn>🌸公園が相殺×${p.ned.length}</p>`:''}${p.can.length?`<p class=red>⚠商圏被り×${p.can.length}（x${p.cf}）</p>`:''}<div class=j><span>街の基本収益</span><span>${fmt(p.base)}</span></div><div class="j amb"><span>シナジー倍率</span><span>x${p.mul}</span></div>${p.fix?`<div class="j grn"><span>🏠固定収入</span><span>+${fmt(p.fix)}</span></div>`:''}<button class=btn data-a=night>🌙 夜へ</button></div>`
+  :`<p class=m>今日の建設候補</p>`+g.cards.map((c,i)=>`<button class="card ${g.sel==i?'on':''}" data-a=card data-i=${i}><span style="font-size:30px">${c.e}</span><span><b>${c.n}</b><br><span class=m>基本収益 ${fmt(c.v)}</span>${c.a?`<br><span style="color:#38bdf8;font-size:12px">✨${c.a}</span>`:''}</span></button>`).join('');
+ return`<div class=row><div style="flex:1;min-width:280px"><p class=m>City Blueprint 4×4　⚡=シナジー ⚠=マイナス</p><div class=grid>${cells}</div></div><div style="width:280px">${right}</div></div>`},
+night(){if(!cnt('super'))return`<div class=c><div style="font-size:48px">🏪</div><p>まだスーパーがありません。今夜は店舗ボーナスなし</p><button class=btn data-a=toinv>📈 投資フェーズへ</button></div>`;
+ const g=G,s=store();return`<div class=row><div style="flex:1;min-width:280px"><p class=m>🏪 店舗レイアウト（${g.sh.length}棚${g.sh.length>4?'・拡張店舗':''}）</p><div class=row style="gap:8px;max-width:420px">${g.sh.map((k,i)=>`<button class="cell ${k?'f':''}" data-a=shelf data-i=${i}>${k?PR.find(p=>p[0]==k)[1]:'<small class=m>棚'+(i+1)+'</small>'}</button>`).join('')}</div>
+ <div class=row style="gap:6px;margin-top:10px">${PR.map(p=>`<button class="card ${g.sp==p[0]?'on':''}" style="width:auto;padding:6px 10px;margin:0;border-radius:99px" data-a=prod data-i=${p[0]}>${p[1]}${p[2]}</button>`).join('')}<button class=card style="width:auto;padding:6px 10px;margin:0;border-radius:99px" data-a=rst>↺リセット</button></div>
+ <p class="${s.cb.length?'amb':'m'}">${s.cb.length?'⚡アソシエーション・コンボ×'+s.cb.length+'：'+s.cb.map(c=>pn(c[0])+'×'+pn(c[1])).join(' / '):'コンボなし（購買ログを読み解こう）'}</p>${s.rn?`<p class=amb>🍜ラーメン屋×${s.rn}：店舗倍率x${s.rm}</p>`:''}<b>合計店舗倍率 x${+s.t.toFixed(2)}</b></div>
+ <div style="width:280px"><p class=m>📠 本日の顧客購買ログ</p><div class=rc>${PL.map(l=>'<p>・'+l+'</p>').join('')}</div><button class=btn data-a=toinv>📈 投資フェーズへ</button></div></div>`},
+invest(){const g=G,d=g.inv.find(i=>i.day==g.day),m=+(2.5+.2*cnt('hosp')).toFixed(2);return`<div class=c><p class=m>📈 資産形成（${3}日ロック・満期でx${m}${cnt('hosp')?' 🏥病院効果':''}）</p>${g.mat?`<p class=grn><b>💹 投資が満期！ +${fmt(g.mat)}</b></p>`:''}<p>現在の資金（投資分を除く）<br><b class=amb style="font-size:24px">${fmt(g.money)}</b></p>${d?`<div class=box style="display:inline-block">${fmt(d.amt)} を投資しました（DAY${d.due}満期）</div>`:[.25,.5,1].map(p=>`<button class=card style="width:auto;display:inline-block;margin:4px" data-a=buy data-i=${p}><b>${p==1?'全額':p*100+'%'}投資</b><br><span class=m>${fmt(g.money*p)}</span></button>`).join('')}${g.inv.filter(i=>i.day!=g.day).length?`<p class=m>投資中: ${g.inv.filter(i=>i.day!=g.day).map(i=>fmt(i.amt)+'(DAY'+i.due+')').join(' / ')}</p>`:''}<br><button class=btn data-a=set>📊 決算へ</button></div>`},
+settle(){const r=G.res,mega=r.pos.length+r.s.cb.length>=3,e=G.ev;return`<div class=c>${mega?'<div class=bn>🎉✨ MEGA COMBO!! ✨🎉</div><br><br>':''}<div class=row style="justify-content:center;align-items:flex-start"><div class="rc ${mega?'mega':''}" style="text-align:left"><p class=c><b>*** DAILY REPORT ***</b><br>DAY ${G.day} 決算票　${e?e[0]+e[1]:'☀️平穏な一日'}</p><hr>
+<div class=j><span>街の基本収益</span><span>${fmt(r.base)}</span></div>${r.pos.length?`<p style="color:#b45309"><b>⚡街コンボ×${r.pos.length}: ${nm(r.pos)}</b></p>`:''}${r.neg.length?`<p style="color:#dc2626"><b>⚠マイナス×${r.neg.length}: ${nm(r.neg)}</b></p>`:''}${r.ned.length?`<p style="color:#059669"><b>🌸公園が相殺×${r.ned.length}</b></p>`:''}${r.can.length?`<p style="color:#dc2626"><b>⚠商圏被り×${r.can.length}（x${r.cf}）</b></p>`:''}${r.fix?`<div class=j><span>🏠固定収入</span><span>+${fmt(r.fix)}</span></div>`:''}
+<div class=j><b>街シナジー収益</b><b>${fmt(r.rev)} (x${r.mul})</b></div><hr>${!r.hs?'<p>🏪スーパー未建設（x1）</p>':r.s.cb.length?`<p style="color:#b45309"><b>店舗コンボ×${r.s.cb.length}: ${r.s.cb.map(c=>pn(c[0])+'×'+pn(c[1])).join(' / ')}</b></p>`:'<p>店舗コンボ: なし</p>'}${r.s.rn?`<p style="color:#b45309">🍜ラーメン屋効果 x${r.s.rm}</p>`:''}<div class=j><b>店舗倍率</b><b>x${+r.s.t.toFixed(2)}</b></div><hr style="border-top:2px solid #292524"><div class=j style="font-size:17px"><b>本日の最終収益</b><b style="color:#b45309">${fmt(r.fin)}</b></div><button class=btn style="width:100%;background:#0f172a;color:#fff" data-a=next>☀️ 翌日へ進む</button></div><div style="text-align:left">${swot(r)}</div></div></div>`},
+end(){const w=G.phase=='win',rk=rank();return`<div class=c><div style="font-size:56px">${w?'🏆':'📉'}</div><h2 class="${w?'grn':'red'}">${w?'目標金額を達成！':'ゲームオーバー'}</h2><p>${G.day}日目 / 最終所持金 ${fmt(G.money)}</p>${G.pol.length?`<p class=m>都市の方針: ${G.pol.map(p=>p[0]+p[1]).join(' / ')}</p>`:''}${G.inv.length?`<p class=red style="font-size:12px">※投資中の${fmt(G.inv.reduce((s,i)=>s+i.amt,0))}は満期に届きませんでした</p>`:''}
+<div class=box style="max-width:380px;margin:auto"><p><input id=nm maxlength=10 placeholder="ニックネーム"> <button class=btn style="margin:0;padding:8px 16px" data-a=save>登録</button></p><p class=m style="text-align:left">自己ベスト・ランキング（上位5件）</p>${rk.length?rk.map((r,i)=>`<div class=j style="background:#0f172a;padding:6px 8px;border-radius:6px;margin-top:4px"><span>${i+1}. ${r.n} <span class=m>(${r.d}日目)</span></span><b class=amb>${fmt(r.s)}</b></div>`).join(''):'<p class=m>まだ記録がありません</p>'}<p class=m>※ このブラウザに保存されます</p></div><button class=btn data-a=restart>もう一度プレイする</button></div>`}};
+function render(){const g=G,pct=Math.min(100,Math.round(g.money/3e3)),ST=[['event','🎲イベント'],['policy','📜政策'],['day','☀️昼'],['night','🌙夜'],['invest','📈投資'],['settle','📊決算']],ended=g.phase=='win'||g.phase=='lose';
+ $('#app').innerHTML=`<div class=row style="justify-content:space-between"><b style="font-size:20px">🏙️ シナジー・シティ</b><span>DAY ${g.day}/12　<b class=amb>💰${fmt(g.money)}</b></span></div><div class=m>目標 ¥300,000（${pct}%）</div><div class=bar><i style="width:${pct}%"></i></div>${g.inv.length?`<div class=grn style="font-size:12px">📈 投資中: ${fmt(g.inv.reduce((s,i)=>s+i.amt,0))}</div>`:''}${g.pol.length?`<div style="font-size:12px;color:#7dd3fc">📜 ${g.pol.map(p=>p[0]+p[1]).join(' / ')}</div>`:''}
+ ${ended?'':`<div class=st style="margin:12px 0">${ST.map(s=>`<span class="${s[0]==g.phase?'on':''}">${s[1]}</span>`).join('')}</div>`}<div style="margin-top:14px">${V[ended?'end':g.phase]()}</div>`}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(t&&!t.disabled)act(t.dataset.a,t.dataset.i)});render();
+</script></body></html>
